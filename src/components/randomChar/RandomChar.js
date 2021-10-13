@@ -19,7 +19,7 @@ class RandomChar extends Component {
 
     state = {
         char: {},
-        loading: true,      //загружается что-то
+        loading: true,      //сразу загружается спиннер при вызове этого блока/при обновлении стр
         error: false
     }
     
@@ -27,7 +27,7 @@ class RandomChar extends Component {
 
     componentDidMount(){
         this.updateChar();  //сетевой запрос
-        this.timerId = setInterval(this.updateChar, 3000);  //уст. таймер
+        // this.timerId = setInterval(this.updateChar, 3000);  //уст. таймер
     }
 
     componentWillUnmount(){      
@@ -42,6 +42,13 @@ class RandomChar extends Component {
         })
     }
 
+    //перед сетевым запросом будет загружаться спиннер, особенно это важно при нажатив на кн."try it"
+    onCharLoading = () => {
+        this.setState({
+            loading: true       
+        })
+    }
+
     onError = () => {
         this.setState({
             loading: false,         //после загрузки данных спиннер исчезнет
@@ -51,7 +58,7 @@ class RandomChar extends Component {
 
    updateChar = () =>{
         const id = Math.floor(Math.random() * (1011400-1011000) + 1011000); //Math.floor -округляет рез-т,далее прописана формула метода Math.random; (1011400-101100)-min-max персон.
-        
+        this.onCharLoading();
         this.marvelService
             .getCharacter(id)       //вызываем один из его нужных методов
             .then(this.onCharLoaded) //после получения данных сработает этот метод
@@ -114,5 +121,6 @@ const View = ({character}) => {
         </div>    
     )
 }
+
 
 export default RandomChar;

@@ -47,7 +47,9 @@ class CharList extends Component{
             return (                //вернется имя персонажа и его номер
                 <li 
                     className="char__item"
-                    key={id}>
+                    key={id}
+                    onClick={() => this.props.onCharSelected(id)}  //при клике на персонажа получаем id и передаем в App.js
+                    > 
                         <img src={thumbnail} alt={name} style={imgStyle}/>
                         <div className="char__name">{name}</div>
                 </li>
