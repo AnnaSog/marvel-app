@@ -118,13 +118,15 @@ const View =({character}) => {
             </div>
             <div className="char__comics">Comics:</div>
             <ul className="char__comics-list">
+                {comics.length ? null : "There is no comics with this character"}
                 {
                     comics.map((item, i) => {
+                        if(i > 9) return; //если комиксов больше 10, то дальше они не будет формироваться
+
                         return(
                             <li 
                                 key={i}   //при создании нового эл.(они будут создаваться по этому шаблону), нужен key и по умолчанию укажем порядковый номер эл.(i)
                                 className="char__comics-item"> 
-
                                 {item.name}
                             </li>
                         )

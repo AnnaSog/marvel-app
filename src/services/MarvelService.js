@@ -1,6 +1,7 @@
 class MarvelService {
     _apiBase = 'https://gateway.marvel.com:443/v1/public/';
     _apiKey = 'apikey=b4e99c5feecbc58cf8b09dc8585dac81';
+    _baseOffset = 210;  //загружаются перс. с 210 отступа
 
     getResource = async (url) => {
         let res = await fetch(url);
@@ -12,9 +13,9 @@ class MarvelService {
         return await res.json();
     }
 
-    getAllCharacters = async () => {
-        const res = await this.getResource(`${this._apiBase}characters?limit=9&offset=210&${this._apiKey}`); //получаем большой массив с объектами
-        return res.data.results.map(this._transformCharacter); //в полученном рез-те отбираем нужный массив и создав отдельный массив(map) трансформируя их по конкретным данным 
+    getAllCharacters = async (offset = this._baseOffset) => {      //по умолчанию будут загружаться перс. с 210 отступа(если при отправке запроса не указан арг)
+        const res = await this.getResource(`${this._apiBase}characters?limit=9&offset=${offset}&${this._apiKey}`);   //получаем большой массив с объектами
+        return res.data.results.map(this._transformCharacter);     //в полученном рез-те отбираем нужный массив и создав отдельный массив(map) трансформируя их по конкретным данным 
     }
 
     getCharacter = async (id) => {
@@ -31,8 +32,7 @@ class MarvelService {
             thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension, 
             homepage: char.urls[0].url,
             wiki: char.urls[1].url,
-            comics: char.comics.items
-            
+            comics: char.comics.items  
         }
         
     }

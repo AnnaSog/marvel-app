@@ -8,24 +8,49 @@ import './charList.scss';
 class CharList extends Component{
 
     state = {
-        charList: [],
+        charList: [],       //приходит массив с персонажами
         loading: true,      //загружается что-то
-        error: false
+        error: false,
+        newItemLoading: false,  //эл.загрузки будет вызываться вручную при нажатии на кнопку
+        offset: 210,
+        charEnded: false
     }
 
     marvelService = new MarvelService();
 
     componentDidMount(){
-        this.marvelService.getAllCharacters()     //сетевой запрос, вызываем один из его нужных методов
-            .then(this.onCharListLoaded) //после получения данных сработает этот метод
+        this.onRequest();   //при первом запросе в арг.не прописан offset, значит по умол. 210, при повторном запросе будут уже указан 
+    }
+
+    //запрос на сервер
+    onRequest = (offset) => {
+        this.marvelService.getAllCharacters(offset)     //сетевой запрос, вызываем один из его нужных методов
+            .then(this.onCharListLoaded)       //после получения данных сработает этот метод по отражения изменения сос-ния и отраж. интрефейса
             .catch(this.onError) 
     }
 
-    onCharListLoaded = (charList) => {    // char - придут трансформированные данные с сервера 
+    //персонаж еще загружается
+    onCharLoading = () => {
         this.setState({
-            charList: charList,            //и изменять сос-ние  
-            loading: false         //после загрузки данных спиннер исчезнет 
+            newItemLoading: true   //при запросе загрузки персонажей - эл.загрузки будет отражаться
         })
+    }
+
+    //персонажи успешно загрузились
+    onCharListLoaded = (newCharList) => {    // newCharList - придут трансформированные данные с сервера 
+        let ended = false; //эта переменная нужна,что подставить в изм.сос-ние
+        if(newCharList<9){
+            ended = true;
+        }
+        
+        //вот так изменится сос-ние когда придут данные с сервера
+        this.setState(({offset, charList}) => ({    //новое состояние зависит от предыдущего и из-за этого ()=>{} c текущем сос-нием(пока без внесенных изм.)и мы из этой фун-ии возращаем объект
+            charList: [...charList, ...newCharList],   //при первом запросе 9 перс.попадут в newCharList, при втором и посл. запросах эти первые 9 перс. будут уже в charList, а новые newCharList,т.е.предыд.сохр +новое
+            loading: false,         //после загрузки данных спиннер исчезнет 
+            newItemLoading: false,
+            offset: offset + 9,       //текущее сос-ние + 9 
+            charEnded:ended
+        }))
     }
 
     onError = () => {
@@ -65,7 +90,7 @@ class CharList extends Component{
     
     render(){
 
-        const {charList, loading, error }= this.state; //изменный char(после получения трансофр. данных с сервера) будет содержать эти данные
+        const {charList, loading, error, offset, newItemLoading, charEnded }= this.state; //изменный char(после получения трансофр. данных с сервера) будет содержать эти данные
         const items = this.renderItems(charList);
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
@@ -78,7 +103,12 @@ class CharList extends Component{
                 {spinner}
                 {content}
                 
-                <button className="button button__main button__long">
+                <button 
+                    className="button button__main button__long"
+                    disabled={newItemLoading}  //атр. disabled блокирует/заблокирует кнопку в замисимости, что будет в state true/false
+                    style={{'display': charEnded ? 'none' : 'block'}}  //если перс.все загр., то кнопка исчезает('none')
+                    onClick={()=> this.onRequest(offset)}  //если с атрибутом, то всегда указывать с ()=>
+                    >   
                     <div className="inner">load more</div>
                 </button>
             </div>

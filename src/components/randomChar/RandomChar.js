@@ -58,7 +58,7 @@ class RandomChar extends Component {
 
    updateChar = () =>{
         const id = Math.floor(Math.random() * (1011400-1011000) + 1011000); //Math.floor -округляет рез-т,далее прописана формула метода Math.random; (1011400-101100)-min-max персон.
-        this.onCharLoading();
+        this.onCharLoading();  //загружается спиннер пока не пришли данные с сервера
         this.marvelService
             .getCharacter(id)       //вызываем один из его нужных методов
             .then(this.onCharLoaded) //после получения данных сработает этот метод
