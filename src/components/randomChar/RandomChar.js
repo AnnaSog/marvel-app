@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -6,93 +6,73 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
-class RandomChar extends Component {
+const RandomChar = () => {
 
-    //В ЭТОМ state ЛЕЖАТ ДАННЫЕ, КТР ОПРЕДЕЛЯЮТ ВСЕГО ОДНОГО ПЕРСОНАЖА, НО В state МОГУТ БЫТЬ И ДР.ДАННЫЕ(ОШИБКА, ИНДИКАТОР И ТД.) И ЛУЧШЕ ЭТИ ДАННЫЕ ЗАГР.В ОТДЕЛЬНЫЙ ОБЪЕКТ
-    // state ={                //данные взяты из данные персонажей в API и в основном в разделе results
-    //     name: null,
-    //     description: null,  //Описание
-    //     thumbnail: null,    //маленькая картинка
-    //     homepage:null,     //кнопка
-    //     wiki: null          //вт. кнопка
-    // }
-
-    state = {
-        char: {},
-        loading: true,      //сразу загружается спиннер при вызове этого блока/при обновлении стр
-        error: false
-    }
+    const [char, setChar] = useState({});
+    const [loading, setLoading] = useState(true);   //сразу загружается спиннер при вызове этого блока/при обновлении стр
+    const [error, setError] = useState(false);
     
-    marvelService = new MarvelService();
+    const marvelService = new MarvelService();
 
-    componentDidMount(){
-        this.updateChar();  //сетевой запрос
-        // this.timerId = setInterval(this.updateChar, 3000);  //уст. таймер
-    }
+    useEffect( () => {
+        updateChar();  //сетевой запрос
+        // timerId = setInterval(updateChar, 3000);  //уст. таймер
+        // clearInterval(timerId);  //отписка от таймера
+    }, [])
 
-    componentWillUnmount(){      
-        clearInterval(this.timerId);
-    }
 
     //метод по загрузке персонажа
-    onCharLoaded = (char) => {    // char - придут трансформированные данные с сервера 
-        this.setState({
-            char: char,            //и изменять сос-ние  
-            loading: false         //после загрузки данных спиннер исчезнет 
-        })
+    const onCharLoaded = (char) => {    // char - придут трансформированные данные с сервера 
+        setChar(char);       //и изменять сос-ние  
+        setLoading(false);   //после загрузки данных спиннер исчезнет 
     }
 
     //перед сетевым запросом будет загружаться спиннер, особенно это важно при нажатив на кн."try it"
-    onCharLoading = () => {
-        this.setState({
-            loading: true       
-        })
+    const onCharLoading = () => {
+        setLoading(true)
     }
 
-    onError = () => {
-        this.setState({
-            loading: false,         //после загрузки данных спиннер исчезнет
-            error: true
-        })
+    const onError = () => {
+        setLoading(false);  //после загрузки данных спиннер исчезнет
+        setError(true);
     }
 
-   updateChar = () =>{
+  const updateChar = () =>{
         const id = Math.floor(Math.random() * (1011400-1011000) + 1011000); //Math.floor -округляет рез-т,далее прописана формула метода Math.random; (1011400-101100)-min-max персон.
-        this.onCharLoading();  //загружается спиннер пока не пришли данные с сервера
-        this.marvelService
+        onCharLoading();  //загружается спиннер пока не пришли данные с сервера
+        marvelService
             .getCharacter(id)       //вызываем один из его нужных методов
-            .then(this.onCharLoaded) //после получения данных сработает этот метод
-            .catch(this.onError)
+            .then(onCharLoaded) //после получения данных сработает этот метод
+            .catch(onError)
     }
 
-    render() {
-        const {char, loading, error }= this.state; //изменный char(после получения трансофр. данных с сервера) будет содержать эти данные
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(error || loading) ? <View character={char}/> : null;
 
-        return (
-            <div className="randomchar">
-                {errorMessage}
-                {spinner}
-                {content}
-    
-                <div className="randomchar__static">
-                    <p className="randomchar__title">
-                        Random character for today!<br/>
-                        Do you want to get to know him better?
-                    </p>
-                    <p className="randomchar__title">
-                        Or choose another one
-                    </p>
-                    <button className="button button__main" onClick={this.updateChar}>
-                        <div className="inner">try it</div>
-                    </button>
-                    <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
-                </div>
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
+    const content = !(error || loading) ? <View character={char}/> : null;
+
+    return (
+        <div className="randomchar">
+            {errorMessage}
+            {spinner}
+            {content}
+
+            <div className="randomchar__static">
+                <p className="randomchar__title">
+                    Random character for today!<br/>
+                    Do you want to get to know him better?
+                </p>
+                <p className="randomchar__title">
+                    Or choose another one
+                </p>
+                <button className="button button__main" onClick={updateChar}>
+                    <div className="inner">try it</div>
+                </button>
+                <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
             </div>
-        )
-    }
+        </div>
+    )
+    
 }
 
 const View = ({character}) => {

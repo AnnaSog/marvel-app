@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types'; 
 
 import MarvelService from '../../services/MarvelService';
@@ -9,86 +9,65 @@ import Skeleton from '../skeleton/Skeleton';
 import './charInfo.scss';
 
 
-class CharInfo extends Component{
+const CharInfo = (props) => {
 
-    state = {
-        char: null,  //если бы указали пустой объект {}, то это означает true и мы не смогли бы загрузить по условию скелетон(см.render)
-        loading: false,      //при вызове этого компонента, спинер не должен по умолчанию отражаться, появится при выове польз-ем
-        error: false
-    }
+    const [char, setChar] = useState(null);     //если бы указали пустой объект {}, то это означает true и мы не смогли бы загрузить по условию скелетон
+    const [loading, setLoading] = useState(false);      //при вызове этого компонента, спинер не должен по умолчанию отражаться, появится при выове польз-ем
+    const [error, setError] = useState(false);  
 
+    const marvelService = new MarvelService();
 
-    marvelService = new MarvelService();
-
-    componentDidMount(){  //вызывается 1 раз при создании компонента
-        this.updateChar();  //сетевой запрос 
-    }
-
-    componentDidUpdate(prevProps){                 //prevProps/prevState сохраняет предыдущее сос-ние до обновления
-        if(this.props.charId !== prevProps.charId){  //если текущий пропс не совпадает с предыдущем сос-нием (не совпадаю Id)
-            this.updateChar();                    //то значит прошло обновление и обновляется персонаж
-        }else{
-            return;
-        }
-    }
+    useEffect( () => {
+        updateChar()  //сетевой запрос 
+    }, [props.charId])
 
 
-    updateChar = () =>{
-        const {charId} = this.props;  //получим Id из app.js, а они из CharList
+    const updateChar = () =>{
+        const {charId} = props;  //получим Id из app.js, а они из CharList
         if(!charId){    //если нет Id, то просто остановим 
             return;
         }
 
-        this.onCharLoading();
-        this.marvelService
+        onCharLoading();
+        marvelService
             .getCharacter(charId)       //вызываем один из его нужных методов
-            .then(this.onCharLoaded) //после получения данных сработает этот метод
-            .catch(this.onError)
+            .then(onCharLoaded) //после получения данных сработает этот метод
+            .catch(onError)
     }
 
     //метод по загрузке персонажа
-    onCharLoaded = (char) => {    // char - придут трансформированные данные с сервера 
-        this.setState({
-            char: char,            //и изменять сос-ние  
-            loading: false         //после загрузки данных спиннер исчезнет 
-        })
+    const onCharLoaded = (char) => {    //char - придут трансформированные данные с сервера 
+        setChar(char);         //и изменять сос-ние 
+        setLoading(false);      //после загрузки данных спиннер исчезнет 
     }
 
     //перед сетевым запросом будет загружаться спиннер, что польз. понимал, что-то здесь сейчас загрузится
-    onCharLoading = () => {
-        this.setState({
-            loading: true       
-        })
+    const onCharLoading = () => {
+        setLoading(true)
     }
 
-    onError = () => {
-        this.setState({
-            loading: false,         //после загрузки данных спиннер исчезнет
-            error: true
-        })
+    const onError = () => {
+        setLoading(false);   //после загрузки данных спиннер исчезнет
+        setError(true);
     }
 
 
-    render(){
+    const skeleton = !(error || loading || char) ? <Skeleton/> : null; //первоначально будет отражаться скелетон, а потом загрузится после запроса все ост
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
+    
+    const content = !(error || loading || !char) ? <View character={char}/> : null;
+            //нет ошибки, нет загрузки и есть персонаж(!char)
 
-        const {char, loading, error }= this.state; //изменный char(после получения трансофр. данных с сервера) будет содержать эти данные
-        
-        const skeleton = !(error || loading || char) ? <Skeleton/> : null; //первоначально будет отражаться скелетон, а потом загрузится после запроса все ост
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        
-        const content = !(error || loading || !char) ? <View character={char}/> : null;
-                //нет ошибки, нет загрузки и есть персонаж(!char)
+    return (
+        <div className="char__info">
+            {skeleton}
+            {errorMessage}
+            {spinner}
+            {content}
+        </div>
+    )
 
-        return (
-            <div className="char__info">
-                {skeleton}
-                {errorMessage}
-                {spinner}
-                {content}
-            </div>
-        )
-    }
 }
 
 const View =({character}) => {
