@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types'; 
 
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
@@ -12,43 +12,28 @@ import './charInfo.scss';
 const CharInfo = (props) => {
 
     const [char, setChar] = useState(null);     //если бы указали пустой объект {}, то это означает true и мы не смогли бы загрузить по условию скелетон
-    const [loading, setLoading] = useState(false);      //при вызове этого компонента, спинер не должен по умолчанию отражаться, появится при выове польз-ем
-    const [error, setError] = useState(false);  
-
-    const marvelService = new MarvelService();
+    const {loading, error, getCharacter, clearError} = useMarvelService();
 
     useEffect( () => {
         updateChar()  //сетевой запрос 
     }, [props.charId])
 
 
+    //сетевой запрос 
     const updateChar = () =>{
         const {charId} = props;  //получим Id из app.js, а они из CharList
         if(!charId){    //если нет Id, то просто остановим 
             return;
         }
 
-        onCharLoading();
-        marvelService
-            .getCharacter(charId)       //вызываем один из его нужных методов
+        clearError();
+        getCharacter(charId)       //вызываем метод из useMarvelService
             .then(onCharLoaded) //после получения данных сработает этот метод
-            .catch(onError)
     }
 
-    //метод по загрузке персонажа
+    //метод по уже загруженным перс.
     const onCharLoaded = (char) => {    //char - придут трансформированные данные с сервера 
-        setChar(char);         //и изменять сос-ние 
-        setLoading(false);      //после загрузки данных спиннер исчезнет 
-    }
-
-    //перед сетевым запросом будет загружаться спиннер, что польз. понимал, что-то здесь сейчас загрузится
-    const onCharLoading = () => {
-        setLoading(true)
-    }
-
-    const onError = () => {
-        setLoading(false);   //после загрузки данных спиннер исчезнет
-        setError(true);
+        setChar(char);               //и изменять сос-ние 
     }
 
 

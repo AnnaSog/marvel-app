@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types'; 
 
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
@@ -10,30 +10,24 @@ import './charList.scss';
 const CharList = (props) => {
 
     const [charList, setCharList] = useState([]);   //приходит массив с объектами(персонажами)
-    const [loading, setLoading] = useState(true);   //загружается что-то
-    const [error, setError] = useState(false);
-    const [newItemLoading, setNewItemLoading] = useState(false);   //эл.загрузки будет вызываться вручную при нажатии на кнопку
+    const [newItemLoading, setNewItemLoading] = useState(false);   //спиннер загрузки доп. перс., эл.загрузки будет вызываться вручную при нажатии на кнопку
     const [offset, setOffset] = useState(210);
     const [charEnded, setCharEnded] = useState(false);
 
-   const marvelService = new MarvelService();
+   const {loading, error, getAllCharacters} = useMarvelService();
 
    useEffect( () => {
-        onRequest();    //при первом запросе в арг.не прописан offset, значит по умол. 210, при повторном запросе будут уже указан 
-   }, [])
+        onRequest(offset, true);    //true, т.е. initial: true - при первом запросе спиннер с доп. перс. не будет загр.
+    }, [])
 
    
     //запрос на сервер
-    const onRequest = (offset) => {
-        marvelService.getAllCharacters(offset)     //сетевой запрос, вызываем один из его нужных методов
-            .then(onCharListLoaded)       //после получения данных сработает этот метод по отражения изменения сос-ния и отраж. интрефейса
-            .catch(onError) 
+    const onRequest = (offset, initial) => {   //initial - первоначальная загрузка
+        initial ? setNewItemLoading(false) : setNewItemLoading(true)  //если первая загрузка, то спиннер загрузки доб. перс не будет отражаться, если повт.загр - будет 
+        getAllCharacters(offset)        //сетевой запрос с нужным методом
+            .then(onCharListLoaded)       //после получения данных сработает этот метод по отражения изменения сос-ния и отраж. интрефейса 
     }
 
-    //персонаж еще загружается
-    const onCharLoading = () => {
-        setNewItemLoading(true)   //при запросе загрузки персонажей - эл.загрузки будет отражаться
-    }
 
     //персонажи успешно загрузились
     const onCharListLoaded = (newCharList) => {    // newCharList - придут трансформированные данные с сервера 
@@ -45,15 +39,9 @@ const CharList = (props) => {
         //вот так изменится сос-ние когда придут данные с сервера
         //новое состояние зависит от предыдущего и из-за этого стрелочная фун-ия c текущем сос-нием(пока без внесенных изм.)и мы из этой фун-ии возращаем объект
         setCharList(charList => [...charList, ...newCharList]);  //при первом запросе 9 перс.попадут в newCharList, при втором и посл. запросах эти первые 9 перс. будут уже в charList, а новые newCharList,т.е.предыд.сохр +новое
-        setLoading(false);                 //после загрузки данных спиннер исчезнет 
         setNewItemLoading(false);
         setOffset(offset => offset + 9) ;  //текущее сос-ние + 9 
         setCharEnded(ended);
-    }
-
-    const onError = () => {
-        setLoading(false);   //после загрузки данных спиннер исчезнет
-        setError(true);
     }
 
     const itemRefs = useRef([]);
@@ -108,15 +96,14 @@ const CharList = (props) => {
     
     const items = renderItems(charList);
     const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner/> : null;
-    const content = !(error || loading) ? items : null;
+    const spinner = loading && !newItemLoading ? <Spinner/> : null;
 
     return (
         <div className="char__list">
             
             {errorMessage}
             {spinner}
-            {content}
+            {items}
             
             <button 
                 className="button button__main button__long"
