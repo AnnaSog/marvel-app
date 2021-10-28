@@ -45,16 +45,10 @@ const ComicsList = () => {
         const items =  arr.map((item, i) => {  //полученный [] переберем на item с созданием нового  - каждый эл. и порядковый номер c 0 до 9
             const {title, thumbnail, price} = item;
 
-            //настроваем стиль на картинку без изобр. перс.
-            let imgStyle = {'objectFit' : 'cover'};
-            if (thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
-                imgStyle = {'objectFit' : 'unset'};
-            }
-
             return (                //вернется имя персонажа и его номер
                 <li className="comics__item" key={i}> 
                     <a href="#">
-                        <img src={thumbnail} alt={title} style={imgStyle} className="comics__item-img"/>
+                        <img src={thumbnail} alt={title} className="comics__item-img"/>
                         <div className="comics__item-name">{title}</div>
                         <div className="comics__item-price">{price}</div>
                     </a>
