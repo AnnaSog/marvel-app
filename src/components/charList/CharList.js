@@ -12,7 +12,7 @@ const CharList = (props) => {
     const [charList, setCharList] = useState([]);   //приходит массив с объектами(персонажами)
     const [newItemLoading, setNewItemLoading] = useState(false);   //спиннер загрузки доп. перс., эл.загрузки будет вызываться вручную при нажатии на кнопку
     const [offset, setOffset] = useState(210);
-    const [charEnded, setCharEnded] = useState(false);
+    const [charEnded, setCharEnded] = useState(false);     //закончилась загрузка перс.
 
    const {loading, error, getAllCharacters} = useMarvelService();
 
