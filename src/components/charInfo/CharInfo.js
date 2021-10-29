@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types'; 
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom'; 
 
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
@@ -12,12 +13,11 @@ import './charInfo.scss';
 const CharInfo = (props) => {
 
     const [char, setChar] = useState(null);     //если бы указали пустой объект {}, то это означает true и мы не смогли бы загрузить по условию скелетон
-    const {loading, error, getCharacter, clearError} = useMarvelService();
+    const {loading, error, getCharacter, clearError, getComic} = useMarvelService();
 
     useEffect( () => {
         updateChar()  //сетевой запрос 
     }, [props.charId])
-
 
     //сетевой запрос 
     const updateChar = () =>{
@@ -31,6 +31,7 @@ const CharInfo = (props) => {
             .then(onCharLoaded) //после получения данных сработает этот метод
     }
 
+
     //метод по уже загруженным перс.
     const onCharLoaded = (char) => {    //char - придут трансформированные данные с сервера 
         setChar(char);               //и изменять сос-ние 
@@ -41,7 +42,7 @@ const CharInfo = (props) => {
     const errorMessage = error ? <ErrorMessage/> : null;
     const spinner = loading ? <Spinner/> : null;
     
-    const content = !(error || loading || !char) ? <View character={char}/> : null;
+    const content = !(error || loading || !char) ? <View character={char} /> : null;
             //нет ошибки, нет загрузки и есть персонаж(!char)
 
     return (
@@ -83,17 +84,22 @@ const View =({character}) => {
               {description}
             </div>
             <div className="char__comics">Comics:</div>
+            
             <ul className="char__comics-list">
                 {comics.length ? null : "There is no comics with this character"}
-                {
+                {   
                     comics.map((item, i) => {
+
                         if(i > 9) return; //если комиксов больше 10, то дальше они не будет формироваться
 
                         return(
                             <li 
                                 key={i}   //при создании нового эл.(они будут создаваться по этому шаблону), нужен key и по умолчанию укажем порядковый номер эл.(i)
-                                className="char__comics-item"> 
-                                {item.name}
+                                className="char__comics-item">
+                                     
+                                    <Link to={`/comics/${item.resourceURI.substring(43)}`}>
+                                        {item.name}
+                                    </Link> 
                             </li>
                         )
                     })
@@ -103,6 +109,7 @@ const View =({character}) => {
         </>
     )
 }
+
 
 //проверяем, чтобы пропс пришел числом
 CharInfo.propTypes = {

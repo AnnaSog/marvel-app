@@ -14,19 +14,19 @@ const SingleComicPage = () => {
     const [comic, setComic] = useState(null);     //если бы указали пустой объект {}, то это означает true и мы не смогли бы загрузить по условию скелетон
 
     useEffect( () => {
-        updateChar()  //сетевой запрос 
+        updateComic()  //сетевой запрос 
     }, [comicId])
 
 
     //сетевой запрос 
-    const updateChar = () =>{
+    const updateComic = () =>{
         clearError();
         getComic(comicId)       //вызываем метод из useMarvelService
             .then(onComicLoaded) //после получения данных сработает этот метод
     }
 
-    //метод по уже загруженным перс.
-    const onComicLoaded = (comic) => {    //char - придут трансформированные данные с сервера 
+    //метод по уже загруженным комиксов
+    const onComicLoaded = (comic) => {    //comic - придут трансформированные данные с сервера 
         setComic(comic);               //и изменять сос-ние 
     }
 
@@ -35,7 +35,7 @@ const SingleComicPage = () => {
     const spinner = loading ? <Spinner/> : null;
     
     const content = !(error || loading || !comic) ? <View comic={comic}/> : null;
-            //нет ошибки, нет загрузки и есть персонаж(!comic)
+            //нет ошибки, нет загрузки и (!comic)
 
     return (
         <div className="single-comic">
