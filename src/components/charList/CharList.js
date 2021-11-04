@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types'; 
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
@@ -63,32 +64,42 @@ const CharList = (props) => {
             }
             
             return (                //вернется имя персонажа и его номер
-                <li 
-                    className="char__item"
-                    tabIndex={0} //уст ручной фокус
-                    ref={el => itemRefs.current[i] = el}  //itemRefs.current - массив ссылок, ктр будут последовательно формироваться
-                    key={id}
-                    onClick={() => {
-                            props.onCharSelected(id);  //при клике на персонажа получаем id и передаем в App.js
-                            focusOnItem(i);  //при клике на перс сработае фокус
-                        }
-                    } 
-                    onKeyPress={(e) => {        //событие, ктр срабаТывает на нажатие клавиш
-                        if (e.key === ' ' || e.key === "Enter") {
-                            props.onCharSelected(id);
-                            focusOnItem(i);
-                        }
-                    }}
-                    > 
-                        <img src={thumbnail} alt={name} style={imgStyle}/>
-                        <div className="char__name">{name}</div>
-                </li>
+            
+                <CSSTransition 
+                    key={item.id} 
+                    timeout={3000} 
+                    classNames="char__item">
+    
+                    <li 
+                        className="char__item"
+                        tabIndex={0} //уст ручной фокус
+                        ref={el => itemRefs.current[i] = el}  //itemRefs.current - массив ссылок, ктр будут последовательно формироваться
+                        key={id}
+                        onClick={() => {
+                                props.onCharSelected(id);  //при клике на персонажа получаем id и передаем в App.js
+                                focusOnItem(i);  //при клике на перс сработае фокус
+                            }
+                        } 
+                        onKeyPress={(e) => {        //событие, ктр срабаТывает на нажатие клавиш
+                            if (e.key === ' ' || e.key === "Enter") {
+                                props.onCharSelected(id);
+                                focusOnItem(i);
+                            }
+                        }}
+                        > 
+                            <img src={thumbnail} alt={name} style={imgStyle}/>
+                            <div className="char__name">{name}</div>
+                    </li>
+                </CSSTransition> 
+                
             )
         });
         // А эта конструкция вынесена для центровки спиннера/ошибки
         return (
             <ul className="char__grid">
-                {items}
+                <TransitionGroup component={null}>
+                    {items}
+                </TransitionGroup>
             </ul>
         )
     }
@@ -99,21 +110,26 @@ const CharList = (props) => {
     const spinner = loading && !newItemLoading ? <Spinner/> : null;
 
     return (
-        <div className="char__list">
-            
-            {errorMessage}
-            {spinner}
-            {items}
-            
-            <button 
-                className="button button__main button__long"
-                disabled={newItemLoading}  //атр. disabled блокирует/заблокирует кнопку в замисимости, что будет в state true/false
-                style={{'display': charEnded ? 'none' : 'block'}}  //если перс.все загр., то кнопка исчезает('none')
-                onClick={()=> onRequest(offset)}  //если с атрибутом, то всегда указывать с ()=>
-                >   
-                <div className="inner">load more</div>
-            </button>
-        </div>
+        
+     
+        
+            <div className="char__list">
+                
+                {errorMessage}
+                {/* {spinner} */}
+                {items}
+                
+                <button 
+                    className="button button__main button__long"
+                    disabled={newItemLoading}  //атр. disabled блокирует/заблокирует кнопку в замисимости, что будет в state true/false
+                    style={{'display': charEnded ? 'none' : 'block'}}  //если перс.все загр., то кнопка исчезает('none')
+                    onClick={()=> onRequest(offset)}  //если с атрибутом, то всегда указывать с ()=>
+                    >   
+                    <div className="inner">load more</div>
+                </button>
+            </div>
+        
+        
     )
     
     
