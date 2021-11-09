@@ -15,6 +15,15 @@
         width: 170px;
         margin: 45px auto 0 auto;
     }
+    &__form {
+        margin-top: 39px;
+        margin-left: 24px;
+        &-secondary{
+            display: none;
+            margin-left: 24px;
+            margin-top: 15px;
+        }
+    }
     .inner {
         position: relative;
         background-color: $main-color;

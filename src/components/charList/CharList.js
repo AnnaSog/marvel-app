@@ -110,29 +110,22 @@ const CharList = (props) => {
     const spinner = loading && !newItemLoading ? <Spinner/> : null;
 
     return (
-        
-     
-        
-            <div className="char__list">
-                
-                {errorMessage}
-                {/* {spinner} */}
-                {items}
-                
-                <button 
-                    className="button button__main button__long"
-                    disabled={newItemLoading}  //атр. disabled блокирует/заблокирует кнопку в замисимости, что будет в state true/false
-                    style={{'display': charEnded ? 'none' : 'block'}}  //если перс.все загр., то кнопка исчезает('none')
-                    onClick={()=> onRequest(offset)}  //если с атрибутом, то всегда указывать с ()=>
-                    >   
-                    <div className="inner">load more</div>
-                </button>
-            </div>
-        
-        
+        <div className="char__list">
+            
+            {errorMessage}
+            {spinner}
+            {items}
+            
+            <button 
+                className="button button__main button__long"
+                disabled={newItemLoading}  //атр. disabled блокирует/заблокирует кнопку в замисимости, что будет в state true/false
+                style={{'display': charEnded ? 'none' : 'block'}}  //если перс.все загр., то кнопка исчезает('none')
+                onClick={()=> onRequest(offset)}  //если с атрибутом, то всегда указывать с ()=>
+                >   
+                <div className="inner">load more</div>
+            </button>
+        </div> 
     )
-    
-    
 }
 
 //проверяем, чтобы пропс пришел функцией

@@ -13,7 +13,7 @@ import './charInfo.scss';
 const CharInfo = (props) => {
 
     const [char, setChar] = useState(null);     //если бы указали пустой объект {}, то это означает true и мы не смогли бы загрузить по условию скелетон
-    const {loading, error, getCharacter, clearError, getComic} = useMarvelService();
+    const {loading, error, getCharacter, clearError} = useMarvelService();
 
     useEffect( () => {
         updateChar()  //сетевой запрос 

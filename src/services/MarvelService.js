@@ -8,9 +8,14 @@ const useMarvelService = ()  => {
    const _baseOffset = 210;  //загружаются перс. с 210 отступа
 
 
-    const getAllCharacters = async (offset = _baseOffset) => {      //по умолчанию будут загружаться перс. с 210 отступа(если при отправке запроса не указан арг)
+    const getAllCharacters = async (offset = _baseOffset, name='') => {      //по умолчанию будут загружаться перс. с 210 отступа(если при отправке запроса не указан арг)
         const res = await request(`${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`);   //получаем большой массив с объектами
         return res.data.results.map(_transformCharacter);     //в полученном рез-те отбираем нужный массив и создав отдельный массив(map) трансформируя их по конкретным данным 
+    }
+
+    const getCharacterByName = async (name) => {
+        const res = await request(`${_apiBase}characters?name=${name}&${_apiKey}`);
+        return res.data.results.map(_transformCharacter);
     }
 
     const getCharacter = async (id) => {
@@ -54,7 +59,7 @@ const useMarvelService = ()  => {
         }
     }
 
-    return {loading, error, clearError, getAllCharacters, getCharacter, getAllComics, getComic}
+    return {loading, error, clearError, getAllCharacters, getCharacter, getAllComics, getComic, getCharacterByName}
 }
 
 export default useMarvelService;
