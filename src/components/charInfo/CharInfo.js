@@ -17,6 +17,8 @@ const CharInfo = (props) => {
 
     useEffect( () => {
         updateChar()  //сетевой запрос 
+        
+        // eslint-disable-next-line
     }, [props.charId])
 
     //сетевой запрос 

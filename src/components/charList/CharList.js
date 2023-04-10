@@ -19,6 +19,8 @@ const CharList = (props) => {
 
    useEffect( () => {
         onRequest(offset, true);    //true, т.е. initial: true - при первом запросе спиннер с доп. перс. не будет загр.
+
+        // eslint-disable-next-line     
     }, [])
 
    
